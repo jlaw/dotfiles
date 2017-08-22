@@ -1,0 +1,142 @@
+#!/bin/sh
+# shellcheck disable=SC2039 disable=SC2059
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -s) selection="$2"; shift 2;;
+    -w) wait=1; shift;;
+
+    --wait) wait=1; shift;;
+
+    --selection=*) selection="${1#*=}"; shift 1;;
+    --selection  ) echo "$1 requires an argument" >&2; exit 1;;
+
+    -*) echo "unknown option: $1" >&2; exit 1;;
+    * ) echo "unrecognized argument: $1" >&2; exit 1;;
+  esac
+done
+
+selection="${selection:-clipboard}"
+
+yank() {
+  # GUI-only systems (macOS/WSL)
+  if [ -z "$SSH_TTY" ] && [ -z "$MOSH" ]; then
+    if [ "$(uname)" = "Darwin" ]; then
+      if command -v reattach-to-user-namespace >/dev/null; then
+        exec reattach-to-user-namespace pbcopy
+      else
+        exec pbcopy
+      fi
+    elif uname -r | grep -Fq Microsoft; then
+      if command -v win32yank.exe >/dev/null; then
+        exec win32yank.exe -i --crlf
+      else
+        exec sh -c 'tr "\n" "\r\n" | clip.exe'
+      fi
+    fi
+  fi
+
+  # X11 (Linux/BSD)
+  if [ -n "$DISPLAY" ]; then
+    if command -v xsel >/dev/null; then
+      # detect original/conrad
+      if xsel --version >/dev/null 2>&1; then
+        exec xsel ${wait:+--nodetatch} -i --"$selection"
+      else
+        exec xsel -c -s "$selection"
+      fi
+    elif command -v xclip >/dev/null; then
+      exec xclip ${wait:+-quiet} -i -selection "$selection"
+    fi
+  fi
+
+  # OSC 52 (Tmux/Terminal)
+  local base64
+  if command -v base64 >/dev/null; then
+    if base64 --version >/dev/null 2>&1; then
+      base64=$(base64 -w0)
+    else
+      base64=$(base64)
+    fi
+  elif command -v gbase64 >/dev/null; then
+    base64=$(gbase64 -w0)
+  elif command -v b64encode >/dev/null; then
+    base64=$(b64encode -r -)
+  fi
+
+  if [ -n "$base64" ]; then
+    local esc="\\033]52;c;$base64\\007"
+
+    local tty
+    if [ -n "$TMUX" ]; then
+      tty=$(tmux display-message -p '#{client_tty}')
+      # esc="\\033Ptmux;\\033$esc\\033\\"
+    elif [ -n "$SSH_TTY" ]; then
+      tty="$SSH_TTY"
+    else
+      tty="/dev/tty"
+    fi
+
+    if [ "$(printf "$esc" | wc -c)" -gt 100000 ]; then
+      echo "input data too long" >&2; exit 1
+    fi
+
+    printf "$esc" >"$tty"; exit
+  fi
+
+  echo "could not find a method to set the clipboard" >&2; exit 1
+}
+
+paste() {
+  # GUI-only systems (macOS/WSL)
+  if [ -z "$SSH_TTY" ] && [ -z "$MOSH" ]; then
+    if [ "$(uname)" = "Darwin" ]; then
+      if command -v reattach-to-user-namespace >/dev/null; then
+        exec reattach-to-user-namespace pbpaste
+      else
+        exec pbpaste
+      fi
+    elif uname -r | grep -Fq Microsoft; then
+      if command -v win32yank.exe >/dev/null; then
+        exec win32yank.exe -o --lf
+      else
+        exec sh -c 'powershell.exe -Command Get-Clipboard | tr "\r\n" "\n"'
+      fi
+    fi
+  fi
+
+  # X11 (Linux/BSD)
+  if [ -n "$DISPLAY" ]; then
+    if command -v xsel >/dev/null; then
+      # detect original/conrad
+      if xsel --version >/dev/null 2>&1; then
+        exec xsel -o --"$selection"
+      else
+        exec xsel -p -s "$selection"
+      fi
+    elif command -v xclip >/dev/null; then
+      exec xclip -o -selection "$selection"
+    fi
+  fi
+
+  # Tmux
+  if [ -n "$TMUX" ]; then
+    exec tmux save-buffer -
+  fi
+
+  echo "could not find a method to read the clipboard" >&2; exit 1
+}
+
+tmux_tee() {
+  if [ -n "$TMUX" ]; then
+    tmux load-buffer -; tmux save-buffer -
+  else
+    cat
+  fi
+}
+
+case $0 in
+  *yankee-yank ) tmux_tee | yank;;
+  *yankee-paste) paste;;
+  *            ) echo "called as invalid script: $0" >&2; exit 1;;
+esac

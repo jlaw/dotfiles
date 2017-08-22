@@ -1,0 +1,23 @@
+# Homebrew
+alias brewc='brew cleanup'
+alias brewC='brew cleanup -S'
+alias brewi='brew install'
+alias brewl='brew leaves'
+alias brewn='brew info'
+alias brewo='brew outdated'
+alias brewr='brew reinstall'
+alias brews='brew search'
+alias brewu='brew update; and brew upgrade'
+alias brewx='brew uninstall'
+
+# Homebrew Cask
+alias cask='brew cask'
+alias caskc='brew cask cleanup --outdated'
+alias caskC='brew cask cleanup'
+alias caski='brew cask install'
+alias caskl='brew cask list'
+alias caskn='brew cask info'
+alias casko='brew cask outdated --greedy'
+alias caskr='brew cask reinstall'
+alias casks='brew cask search'
+alias caskx='brew cask uninstall'

@@ -1,0 +1,109 @@
+#
+# User Details
+#
+
+[user]
+    name = Jackson Law
+    email = 178053+jlaw@users.noreply.github.com
+[credential]
+    helper = cache --timeout=3600
+    username = jlaw
+
+#
+# General Config
+#
+
+[core]
+    excludesFile = ~/.config/git/ignore
+    attributesFile = ~/.config/git/attributes
+
+[status]
+    short = true
+    branch = true
+    showUntrackedFiles = all
+    submoduleSummary = true
+[stash]
+    showStat = true
+    showPatch = true
+[blame]
+    date = short
+[log]
+    abbrevCommit = true
+    date = relative
+    decorate = auto
+    showSignature = true
+[format]
+    pretty = "format:%C(yellow)%h %C(blue)%G? %C(reset)(%ad) %C(white)%s%C(reset) - %aN%C(magenta)%d"
+
+[push]
+    default = simple
+[pull]
+    rebase = true
+    ff = true
+[diff]
+    tool = nvr
+    renames = copies
+    indentHeuristic = true
+    algorithm = patience
+[merge]
+    tool = nvr
+    defaultToUpstream = true
+[rebase]
+    stat = true
+    autoSquash = true
+    autoStash = true
+    missingCommitsCheck = error
+
+[difftool "nvr"]
+    cmd = nvr -s -d $LOCAL $REMOTE
+[mergetool "nvr"]
+    cmd = nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='
+
+[help]
+    autoCorrect = 1
+
+#
+# Servers
+#
+
+[url "git@github.com:"]
+    pushInsteadOf = https://github.com/
+    pushInsteadOf = git://github.com/
+
+#
+# Aliases
+#
+
+[alias]
+    # rewrite history
+    change-commits = "!f() { VAR=$1; OLD=$2; NEW=$3; shift 3; git filter-branch --env-filter \"if [[ \\\"$`echo $VAR`\\\" = '$OLD' ]]; then export $VAR='$NEW'; fi\" $@; }; f "
+    # from https://help.github.com/articles/remove-sensitive-data
+    remove-file = "!f() { git filter-branch -f --index-filter \"git rm --cached --ignore-unmatch $1\" --prune-empty --tag-name-filter cat -- --all; }; f"
+    # diff-so-fancy
+    difff = "!f() { git diff --color=always $@ | diff-so-fancy; }; f"
+    # legit
+    switch = !legit switch
+    sync = !legit sync
+    publish = !legit publish
+    unpublish = !legit unpublish
+    undo = !legit undo
+    branches = !legit branches
+
+#
+# Colors
+#
+
+[color "diff"]
+    whitespace = red reverse
+    new = green
+    old = red
+    frag = yellow
+    meta = magenta
+    commit = cyan
+
+#
+# Includes
+#
+
+[include]
+    path = ~/.config/git/config.local

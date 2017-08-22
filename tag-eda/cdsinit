@@ -1,0 +1,357 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SKILL
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; turn off infix display
+(sstatus printinfix nil)
+
+; allow SKILL functions to be redefined
+(sstatus writeProtect nil)
+
+; custom SKILL code
+(setSkillPath (cons "~/.cadence/skill/ccs"     (getSkillPath)))
+(setSkillPath (cons "~/.cadence/skill/fsc"     (getSkillPath)))
+(setSkillPath (cons "~/.cadence/skill/scripts" (getSkillPath)))
+(setSkillPath (cons "~/.cadence/skill"         (getSkillPath)))
+
+; return tool version
+(loadi "CCSToolVersion.il")
+
+; load Forza SKILL
+(loadi "FSC.il")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Bindkeys
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(procedure (loc_keys)
+  (load (prependInstallPath "samples/local/leSchBindKeys.il"))
+  (setPrompts "loc >" "")
+)
+
+(procedure (my_keys)
+  (load "~/.cadence/dfII/bindkeys/Layout.il")
+  (load "~/.cadence/dfII/bindkeys/Schematics.il")
+  (load "~/.cadence/dfII/bindkeys/Symbol.il")
+  (setPrompts "jlaw >" "")
+)
+
+(hiSetBindKey "Command Interpreter" "<Key>F11" "(loc_keys)")
+(hiSetBindKey "Command Interpreter" "<Key>F12" "(my_keys)")
+
+(let (bindKeyFileList file path saveSkillPath)
+  bindKeyFileList = '(
+    "Layout.il"
+    "Schematics.il"
+    "Symbol.il"
+  )
+
+  path = strcat(
+    ". ~/.cadence/dfII/bindkeys "
+    (prependInstallPath "local ")
+    (prependInstallPath "samples/local")
+  )
+  saveSkillPath = (getSkillPath)
+  (setSkillPath path)
+
+  (foreach file bindKeyFileList
+    (if (isFile file)
+      then (loadi file)
+    )
+  )
+  (setSkillPath saveSkillPath)
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; User Preference Options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ciw = hiGetCIWindow()
+
+ciw->useScrollbars = nil
+ciw->infix = t
+ciw->expertMode = t
+hiSetUndoLimit(128)
+ciw->nestLimit = 20
+hiSetMultiClickTime(200)
+ciw->displayMouseBinding = t
+if( boundp( 'hicAntiAliasedFonts ) then
+  hiSetFont("text" ?name "PragmataPro Mono" ?size 14 ?bold nil ?italic nil)
+else
+  hiSetFont("text" "-*-fixed-medium-r-*-*-12-*")
+)
+ciw->focusToCursor = nil
+ciw->formPlacement = "top"
+ciw->formRelativeTo = "currentWindow"
+ciw->optionFormPlacement = "bottom"
+ciw->optionFormRelativeTo = "currentWindow"
+ciw->warpPointer = nil
+ciw->displayMenuBindkeys = t
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Window Controls
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(envSetVal "ui" "winPlaceStyle"                'boolean nil               ); Place Manually
+(envSetVal "ui" "setWinTraversal"              'boolean nil               ); Create New Window When Descending
+(envSetVal "ui" "showScrollBars"               'boolean nil               ); Scroll Bars
+(envSetVal "ui" "tearOffMenus"                 'boolean t                 ); Tear-Off Menus
+(envSetVal "ui" "enableMenuShortcuts"          'boolean t                 ); Menu Shortcuts
+(envSetVal "ui" "showMouseBar"                 'cyclic  "Bottom"          ); Mouse Prompts
+(envSetVal "ui" "sessionFocusPolicy"           'cyclic  "CanvasDelay"     ); Focus Policy
+(envSetVal "ui" "canvasFocusDelay"             'int     0                 ); Focus Delay
+(envSetVal "ui" "sideDockTabs"                 'cyclic  "Bottom"          ); Side Dock Tabs
+(envSetVal "ui" "defaultEditorBackgroundColor" 'string  "black"           ); Default Editor Background Color
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Command Controls
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(envSetVal "ui" "infix"                        'boolean t                 ); Infix
+(envSetVal "ui" "showOptionForms"              'boolean nil               ); Options Displayed When Commands Start
+(envSetVal "ui" "undoLevel"                    'int     128               ); Undo Limit
+(envSetVal "ui" "nestLimit"                    'int     20                ); Nest Limit
+(envSetVal "ui" "dblClkTime"                   'int     200               ); Double Click Time
+(envSetVal "ui" "beepVolume"                   'int     -100              ); Beep Volume
+(envSetVal "ui" "webBrowser"                   'string  "google-chrome"   ); Web Browser
+(envSetVal "ui" "defaultFloatFieldFormat"      'string  "%.6g"            ); None
+(envSetVal "ui" "interruptCheckInterval"       'int     500               ); None
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; CIW Controls
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(envSetVal "ui" "ciwCmdInputLines"             'int     1                 ); Input Area Lines
+(envSetVal "ui" "ciwOutputWrapMode"            'cyclic  "Word or Anywhere"); Output Wrap Mode
+(envSetVal "ui" "ciwLogHistorySize"            'int     1000              ); Output Area Lines
+(envSetVal "ui" "ciwCmdExecuteOnEnter"         'boolean t                 ); Enter Key Executes Command
+(envSetVal "ui" "ciwSyntaxHighlighting"        'boolean t                 ); Syntax Highlighting
+(envSetVal "ui" "ciwTabStop"                   'int     2                 ); Tab Stop
+(envSetVal "ui" "ciwRetainUniqueCmds"          'boolean t                 ); Retain Unique Commands
+(envSetVal "ui" "ciwCmdHistoryInPlace"         'boolean t                 ); History In Place
+(envSetVal "ui" "ciwCmdHistorySize"            'int     0                 ); OBS: History Size
+(envSetVal "ui" "raiseCIWonError"              'boolean t                 ); Raise CIW on Error
+(envSetVal "ui" "raiseCIWonWarning"            'boolean nil               ); Raise CIW on Warning
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Dashboard Controls
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(envSetVal "ui" "dashboardIndicators"          'boolean t                 ); Display Dashboard Indicators
+(envSetVal "ui" "dashboardLicenseLight"        'cyclic  "CIW+Session"     ); License Activity
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Log Filter Options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(envSetVal "ui" "typedReturnValue"             'boolean t                 ); Return values from typed-in commands
+(envSetVal "ui" "errorOutput"                  'boolean t                 ); Error message output
+(envSetVal "ui" "warningOutput"                'boolean t                 ); Warning message output
+(envSetVal "ui" "standardOutput"               'boolean t                 ); Standard message output
+(envSetVal "ui" "accelInput"                   'boolean nil               ); Accelerated input
+(envSetVal "ui" "accelReturnValue"             'boolean nil               ); Return values from accelerated input
+(envSetVal "ui" "promptOutput"                 'boolean nil               ); Prompt output
+hiSetFilterOptions(nil nil t nil t t t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; CIW Color Choices
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(envSetVal "ui" "ciwWarnColor"                 'string "orange"           ); warning messages
+(envSetVal "ui" "ciwErrorColor"                'string "red"              ); error messages
+(envSetVal "ui" "ciwMatchParenColor"           'string "purple"           ); parentheses-matching
+(envSetVal "ui" "ciwMismatchParenColor"        'string "red"              ); parentheses-mismatching
+(envSetVal "ui" "ciwMatchCmdColor"             'string "blue"             ); parentheses-matching
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Schematic and Symbol Options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; automatically descend using viewNameList
+;(envSetVal "schematic" "viewNameList" 'string "schematic functional symbol")
+;(envSetVal "schematic" "descendTarget" 'string "use viewNameList")
+procedure( CCSDescendList()
+  let( ()
+    (envSetVal "schematic" "descendTarget" 'string "use viewNameList")
+    schHiDescendRead()
+  )
+)
+
+procedure( CCSDescendQuery()
+  let( ()
+    (envSetVal "schematic" "descendTarget" 'string "query user")
+    schHiDescendRead()
+  )
+)
+
+hiSetBindKey("Schematics" "<Key>d" "CCSDescendList()")
+hiSetBindKey("Schematics" "Ctrl Shift<Key>d" "CCSDescendQuery()")
+
+; auto bus stubs are narrow
+(envSetVal "schematic" "autoWireStubBusTerms" 'cyclic "narrow")
+
+; disable overlap check
+(envSetVal "schematic" "srcInstOverlap" 'cyclic "ignored")
+
+; allow net name of selected wire to be changed
+schSetEnv("editPropReadOnlyNetName" nil)
+
+; automatically update CDF terminal list for schematic and symbol
+envSetVal("auCore.misc" "updateCDFtermOrder" 'boolean t)
+;loadi("CCScheckAndUpdateCDF.il")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Layout Options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; set default snap spacing
+;(envSetVal "layout" "xSnapSpacing" 'float 0.010)
+;(envSetVal "layout" "ySnapSpacing" 'float 0.010)
+;(envSetVal "layout" "xSnapSpacing" 'float 0.005)
+;(envSetVal "layout" "ySnapSpacing" 'float 0.005)
+
+; enable partial selection mode for FGR
+(envSetVal "graphic" "supportFluidInstance" 'boolean t)
+
+; disable Auto Tap Wire
+(envSetVal "layout" "autoTap" 'boolean nil)
+
+; use cross shaped cursor
+(envSetVal "layout" "cursorShape" 'boolean t)
+
+; dim major dots
+(envSetVal "layout" "dotStyleMajorGrid" 'boolean t)
+
+; load SkillCAD
+when( getShellEnvVar("SKILLCAD_PATH") &&
+  isReadable( strcat( getShellEnvVar("SKILLCAD_PATH") "/source/skillcad.il"))
+  SKILLCAD_PACKAGES = list( "IC Layout" )
+  load( strcat( getShellEnvVar("SKILLCAD_PATH") "/source/skillcad.il"))
+)
+
+; load GDS3D
+loadi("/opt/utils/GDS3D_1.8/skill/icdGDS3D.il")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Simulation Options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; set netlisting mode
+setShellEnvVar("CDS_Netlisting_Mode=Analog")
+cdsSetNetlistMode()
+
+; Set default simulation directory
+(envSetVal "asimenv.startup" "projectDir" 'string "./simulation")
+
+; load AFS
+;load( strcat( getShellEnvVar("AFS_ROOT") "/3rdParty/cdsinit-bda"))
+
+; set default simulator to AFS
+(envSetVal "asimenv.startup" "simulator" 'string "afs")
+
+;(envSetVal "afs.envOpts" "autoDisplay" 'boolean nil)
+
+; load Variation Designer
+;load( strcat( getShellEnvVar("VARDES_HOME") "/common/interfaces/cadence/variation_designer.il" ))
+
+; speed up ADEXL simulation startup
+;(envSetVal "adexl.icrpStartup" "binaryName" 'string "virtuoso -nocdsinit")
+
+; display a popup when ADEXL view is opened in read-only mode
+if( (CCSToolVersion) == "6.1" then
+  load("CCSAdexlReadDialog.il")
+)
+
+; Stop loading previous simulation results
+;envSetVal("asimenv" "loadWaveScan" 'boolean "nil")
+
+; Change default Spectre transient output format from SST to psfbin (readable by WaveCrave)
+;if( (CCSToolVersion) == "5.1" then
+; (envSetVal "spectre.envOpts" "simOutputFormat" 'string "psfbin")
+; (envSetVal "spectreVerilog.envOpts" "simOutputFormat" 'string "psfbin")
+;else
+; (envSetVal "spectre.outputs" "simOutputFormat" 'string "psfxl")
+; (envSetVal "spectreVerilog.outputs" "simOutputFormat" 'string "psfxl")
+; (envSetVal "spectre.outputs" "fastViewOption" 'boolean t)
+; (envSetVal "spectreVerilog.outputs" "fastViewOption" 'boolean t)
+;)
+
+; release Spectre license right away
+;(envSetVal "spectre.envOpts" "controlMode" 'string "batch")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Miscellaneous Options
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; customize titles for windows and icons
+(envSetVal "designEditor.window" "windowNameFormat"          'string "%a %m: %l %c %v %x")
+(envSetVal "designEditor.window" "iconNameFormat"            'string "%c:%v"             )
+(envSetVal "designEditor.window" "cellviewModifiedIndicator" 'string "*"                 )
+
+; suppress What's New popup
+(envSetVal "ddserv" "showWhatsNew" 'string (nth 3 (parseString (getVersion))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; VIVA
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; defaults for VIVA
+;vivaInitSetup()
+;loadContext(strcat(prependInstallPath("etc/context/") "viva.cxt"))
+;callInitProc("viva")
+
+(envSetVal "wavescan.application"     "VIVALicenseCheckoutOrder" 'string "ADE,VIVA")
+
+; graph frame
+(envSetVal "viva.graphFrame"          "width"               'string "900")
+(envSetVal "viva.graphFrame"          "height"              'string "700")
+
+; graph
+(envSetVal "viva.graph"               "titleFont"           'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; rectangular graphs
+(envSetVal "viva.rectGraph"           "foreground"          'string "black")
+(envSetVal "viva.rectGraph"           "background"          'string "white")
+
+; axis
+(envSetVal "viva.axis"                "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; trace
+(envSetVal "asimenv.plotting"               "useDisplayDrf"       'boolean nil)
+;(envSetVal "viva.trace"               "lineThickness"       'string "medium")
+(envSetVal "viva.trace"               "lineStyle"           'string "Solid")
+
+; trace legend
+(envSetVal "viva.traceLegend"         "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+(envSetVal "viva.traceLegend"         "printSaveImageFont"  'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; horizontal marker
+(envSetVal "viva.horizMarker"         "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; reference line marker
+(envSetVal "viva.referenceLineMarker" "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; vertical marker
+(envSetVal "viva.vertMarker"          "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; point marker
+(envSetVal "viva.pointMarker"         "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; reference point marker
+(envSetVal "viva.refPointMarker"      "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; specification marker
+(envSetVal "viva.specMarker"          "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; circle marker
+(envSetVal "viva.circleMarker"        "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; graph label
+(envSetVal "viva.graphLabel"          "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; probe
+;(envSetVal "viva.probe"               "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; polar grid
+(envSetVal "viva.polarGrid"           "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+; smith grid
+(envSetVal "viva.smithGrid"           "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; misc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+setPrompts("jlaw >" "")
+editor = "xterm -e nvim";
+user_cdsinit = t
+
+printf("END OF ~/.cdsinit CUSTOMIZATION\n")
+
+; vim:ft=skill
