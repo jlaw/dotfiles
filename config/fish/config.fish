@@ -82,7 +82,7 @@ if status --is-interactive
 
   if string match -q -r "(ttys|pts)" (tty)
     # start our main tmux session (on a pts)
-    if type -q tmux; and not set -q TMUX; and not test (uname) = "Darwin"
+    if type -q tmux; and not set -q TMUX; and not test (uname) = "Darwin"; and not test (uname) = "Linux"
       set -l session (prompt_hostname)
       if tmux has-session -t $session 2>/dev/null
         tmux new-session -t $session\; set-option destroy-unattached
