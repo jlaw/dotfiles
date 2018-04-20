@@ -7,6 +7,7 @@ if status --is-interactive
     source "$HOME/.config/fish/appearance.fish"
 
     # shell environment
+    set -gx LANG en_US.UTF-8
     set -Ux VISUAL nvim
     set -Ux EDITOR nvim
     set -Ux PAGER less
