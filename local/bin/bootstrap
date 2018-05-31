@@ -64,6 +64,13 @@ section "Packages"
 
     info "Installing packages with brew..."
     sh -c "brew install $bld $lib $usr"
+  elif command -v yum >/dev/null; then
+    bld=""
+    lib=""
+    usr="ctags fish gnupg2 htop mosh neovim shellcheck tig tmux2u unzip vim-enhanced"
+
+    info "Installing packages with yum..."
+    su root -c "yum install -y $bld $lib $usr"
   else
     error "No package manager found. Is this a supported system?"
   fi
