@@ -1,4 +1,13 @@
 if status --is-interactive
+  # use 24bit color in non-basic terminals
+  if test "$TERM" != "xterm"; and test "$TERM" != "linux"
+    set -g fish_term24bit 1
+  end
+
+  if test (uname) = "Darwin"
+    source "$HOME/.config/fish/homebrew.fish"
+  end
+
   # first-time universal variable provisioning
   # this allows variables to be overridden locally with set -U
   # set -Ue fish_initialized to reset
@@ -12,7 +21,7 @@ if status --is-interactive
     set -Ux EDITOR nvim
     set -Ux PAGER less
     set -Ux MANPAGER 'nvim -c "set ft=man" -'
-    set -Ux LESS '-n4 -XFR'
+    set -Ux LESS '--RAW-CONTROL-CHARS --tabs=4'
     set -Ux TERMINAL alacritty
     if test (uname) = "Darwin"
       set -Ux BROWSER open
@@ -26,13 +35,13 @@ if status --is-interactive
       end
     end
 
-    # use 24bit color in non-basic terminals
-    if test "$TERM" != "xterm"; and test "$TERM" != "linux"
-      set -g fish_term24bit 1
-    end
-
     # libvirt
     set -Ux LIBVIRT_DEFAULT_URI qemu:///system
+
+    # docker
+    if set -q WSL
+      set -Ux DOCKER_HOST tcp://0.0.0.0:2375
+    end
 
     # fzf (core)
     set -Ux FZF_DEFAULT_COMMAND 'fd --type file'
@@ -53,11 +62,6 @@ if status --is-interactive
     set -U FZF_CD_WITH_HIDDEN_COMMAND 'fd --type directory --follow --hidden --exclude .git'
 
     set -U fish_initialized
-    
-    # homebrew
-    if test (uname) = "Darwin"
-      source "$HOME/.config/fish/homebrew.fish"
-    end
   end
 
   # per-shell setup logic
@@ -68,15 +72,17 @@ if status --is-interactive
     # connect X applications to the windows X11 server
     set -x DISPLAY :0
   else
-    # notify gpg-agent of our tty
-    set -x GPG_TTY (tty)
+    # gpg-agent setup for local connections
+    if type -q gpg-connect-agent; and not set -q SSH_TTY; and not set -q MOSH
+      # launch gpg-agent with our pinentry-program (if not already running)
+      gpg-agent --pinentry-program "$HOME/.local/bin/pinentry" --daemon 2>/dev/null
 
-    # connect ssh to gpg-agent and inform gpg-agent of our TTY (for local logins)
-    if not set -q SSH_TTY; and not set -q MOSH
-      type -q gpgconf
-        and set -x SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
-      type -q gpg-connect-agent
-        and gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+      # notify gpg-agent of our tty
+      set -x GPG_TTY (tty)
+      # notify gpg-agent's ssh compatibility of our tty
+      gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+      # notify ssh of our gpg-agent socket
+      set -x SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
     end
   end
 
@@ -84,10 +90,10 @@ if status --is-interactive
     # start our main tmux session (on a pts)
     if type -q tmux; and not set -q TMUX; and not test (uname) = "Darwin"; and not test (uname) = "Linux"
       set -l session (prompt_hostname)
-      if tmux has-session -t $session 2>/dev/null
-        tmux new-session -t $session\; set-option destroy-unattached
+      if tmux has-session -t "$session" 2>/dev/null
+        tmux new-session -t "$session"\; set-option destroy-unattached
       else
-        tmux new-session -s $session
+        tmux new-session -s "$session"
       end
     end
   else

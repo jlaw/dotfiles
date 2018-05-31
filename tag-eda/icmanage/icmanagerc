@@ -1,0 +1,10 @@
+[dfII]
+options/all_libraries_mode=yes
+options/all_workspaces=0
+options/checkout_select_all_libs=1
+options/dclick_view_edit=0
+options/old_selection_mode=0
+options/show_cats=1
+options/show_files=0
+options/sync_select_all_libs=1
+options/update_check=1

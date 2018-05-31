@@ -1,1 +1,1 @@
-EXCLUDES="README.md LICENSE tags tmux-256color.terminfo"
+EXCLUDES="README.md LICENSE tags tmux-256color.terminfo macos.sh brew.sh"

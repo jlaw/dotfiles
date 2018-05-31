@@ -1,1 +1,1 @@
-GuiFont PragmataProMono:h14
+../../vim/gvimrc

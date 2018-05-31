@@ -10,7 +10,7 @@
 
 ; custom SKILL code
 (setSkillPath (cons "~/.cadence/skill/ccs"     (getSkillPath)))
-(setSkillPath (cons "~/.cadence/skill/fsc"     (getSkillPath)))
+(setSkillPath (cons "~/.cadence/skill/fs"      (getSkillPath)))
 (setSkillPath (cons "~/.cadence/skill/scripts" (getSkillPath)))
 (setSkillPath (cons "~/.cadence/skill"         (getSkillPath)))
 
@@ -23,29 +23,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Bindkeys
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(procedure (loc_keys)
-  (load (prependInstallPath "samples/local/leSchBindKeys.il"))
-  (setPrompts "loc >" "")
-)
-
-(procedure (my_keys)
-  (load "~/.cadence/dfII/bindkeys/Layout.il")
-  (load "~/.cadence/dfII/bindkeys/Schematics.il")
-  (load "~/.cadence/dfII/bindkeys/Symbol.il")
-  (setPrompts "jlaw >" "")
-)
-
-(hiSetBindKey "Command Interpreter" "<Key>F11" "(loc_keys)")
-(hiSetBindKey "Command Interpreter" "<Key>F12" "(my_keys)")
-
-(let (bindKeyFileList file path saveSkillPath)
+(let (bindKeyFileList path file saveSkillPath)
   bindKeyFileList = '(
     "Layout.il"
     "Schematics.il"
     "Symbol.il"
   )
 
-  path = strcat(
+  path = (strcat 
     ". ~/.cadence/dfII/bindkeys "
     (prependInstallPath "local ")
     (prependInstallPath "samples/local")
@@ -64,19 +49,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; User Preference Options
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-ciw = hiGetCIWindow()
+ciw = (hiGetCIWindow)
 
-ciw->useScrollbars = nil
-ciw->infix = t
-ciw->expertMode = t
-hiSetUndoLimit(128)
-ciw->nestLimit = 20
-hiSetMultiClickTime(200)
-ciw->displayMouseBinding = t
-if( boundp( 'hicAntiAliasedFonts ) then
-  hiSetFont("text" ?name "PragmataPro Mono" ?size 14 ?bold nil ?italic nil)
+ciw->useScrollbars = nil                        ; ui.showScrollBars
+ciw->infix = t                                  ; ui.infix
+ciw->expertMode = t                             ; !ui.showOptionForms
+(hiSetUndoLimit 128)                            ; ui.undoLevel
+ciw->nestLimit = 20                             ; ui.netLimit
+(hiSetMultiClickTime 200)                       ; ui.dblClkTime
+ciw->displayMouseBinding = t                    ; ui.showMouseBar
+(if (boundp 'hicAntiAliasedFonts) then
+  (hiSetFont "text" ?name "PragmataPro Mono" ?size 14 ?bold nil ?italic nil)
 else
-  hiSetFont("text" "-*-fixed-medium-r-*-*-12-*")
+  (hiSetFont "text" "-*-fixed-medium-r-*-*-12-*")
 )
 ciw->focusToCursor = nil
 ciw->formPlacement = "top"
@@ -84,7 +69,8 @@ ciw->formRelativeTo = "currentWindow"
 ciw->optionFormPlacement = "bottom"
 ciw->optionFormRelativeTo = "currentWindow"
 ciw->warpPointer = nil
-ciw->displayMenuBindkeys = t
+ciw->displayMenuBindkeys = t                    ; ui.enableMenuShortcuts
+(hiSetFilterOptions nil nil t nil t t t)        ; accelInput promptOutput standardOutput accelReturnValue typedReturnValue errorOutput warningOutput
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Window Controls
@@ -92,7 +78,7 @@ ciw->displayMenuBindkeys = t
 (envSetVal "ui" "winPlaceStyle"                'boolean nil               ); Place Manually
 (envSetVal "ui" "setWinTraversal"              'boolean nil               ); Create New Window When Descending
 (envSetVal "ui" "showScrollBars"               'boolean nil               ); Scroll Bars
-(envSetVal "ui" "tearOffMenus"                 'boolean t                 ); Tear-Off Menus
+(envSetVal "ui" "tearOffMenus"                 'boolean nil               ); Tear-Off Menus
 (envSetVal "ui" "enableMenuShortcuts"          'boolean t                 ); Menu Shortcuts
 (envSetVal "ui" "showMouseBar"                 'cyclic  "Bottom"          ); Mouse Prompts
 (envSetVal "ui" "sessionFocusPolicy"           'cyclic  "CanvasDelay"     ); Focus Policy
@@ -124,7 +110,7 @@ ciw->displayMenuBindkeys = t
 (envSetVal "ui" "ciwTabStop"                   'int     2                 ); Tab Stop
 (envSetVal "ui" "ciwRetainUniqueCmds"          'boolean t                 ); Retain Unique Commands
 (envSetVal "ui" "ciwCmdHistoryInPlace"         'boolean t                 ); History In Place
-(envSetVal "ui" "ciwCmdHistorySize"            'int     0                 ); OBS: History Size
+;(envSetVal "ui" "ciwCmdHistorySize"            'int     0                 ); OBS: History Size
 (envSetVal "ui" "raiseCIWonError"              'boolean t                 ); Raise CIW on Error
 (envSetVal "ui" "raiseCIWonWarning"            'boolean nil               ); Raise CIW on Warning
 
@@ -144,7 +130,6 @@ ciw->displayMenuBindkeys = t
 (envSetVal "ui" "accelInput"                   'boolean nil               ); Accelerated input
 (envSetVal "ui" "accelReturnValue"             'boolean nil               ); Return values from accelerated input
 (envSetVal "ui" "promptOutput"                 'boolean nil               ); Prompt output
-hiSetFilterOptions(nil nil t nil t t t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; CIW Color Choices
@@ -153,30 +138,26 @@ hiSetFilterOptions(nil nil t nil t t t)
 (envSetVal "ui" "ciwErrorColor"                'string "red"              ); error messages
 (envSetVal "ui" "ciwMatchParenColor"           'string "purple"           ); parentheses-matching
 (envSetVal "ui" "ciwMismatchParenColor"        'string "red"              ); parentheses-mismatching
-(envSetVal "ui" "ciwMatchCmdColor"             'string "blue"             ); parentheses-matching
+;(envSetVal "ui" "ciwMatchCmdColor"             'string "blue"             ); command-matching
+(envSetVal "ui" "ciwNameCompletionFuncColor"   'string "blue"             ); command-matching
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Schematic and Symbol Options
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; automatically descend using viewNameList
-;(envSetVal "schematic" "viewNameList" 'string "schematic functional symbol")
-;(envSetVal "schematic" "descendTarget" 'string "use viewNameList")
-procedure( CCSDescendList()
-  let( ()
+
+; bindkey to automatically descend using viewNameList
+(procedure (CCSDescendList)
+  (let nil
     (envSetVal "schematic" "descendTarget" 'string "use viewNameList")
-    schHiDescendRead()
-  )
-)
+    (schHiDescendRead)))
+(hiSetBindKey "Schematics" "<Key>d" "(CCSDescendList)")
 
-procedure( CCSDescendQuery()
-  let( ()
+; bindkey to query user for view when descending
+(procedure (CCSDescendQuery)
+  (let nil
     (envSetVal "schematic" "descendTarget" 'string "query user")
-    schHiDescendRead()
-  )
-)
-
-hiSetBindKey("Schematics" "<Key>d" "CCSDescendList()")
-hiSetBindKey("Schematics" "Ctrl Shift<Key>d" "CCSDescendQuery()")
+    (schHiDescendRead)))
+(hiSetBindKey "Schematics" "Ctrl Shift<Key>d" "(CCSDescendQuery)")
 
 ; auto bus stubs are narrow
 (envSetVal "schematic" "autoWireStubBusTerms" 'cyclic "narrow")
@@ -184,16 +165,22 @@ hiSetBindKey("Schematics" "Ctrl Shift<Key>d" "CCSDescendQuery()")
 ; disable overlap check
 (envSetVal "schematic" "srcInstOverlap" 'cyclic "ignored")
 
-; allow net name of selected wire to be changed
-schSetEnv("editPropReadOnlyNetName" nil)
+; disable solder dot check
+(envSetVal "schematic" "srcSolderOnCrossover" 'cyclic "ignored")
 
-; automatically update CDF terminal list for schematic and symbol
-envSetVal("auCore.misc" "updateCDFtermOrder" 'boolean t)
+; allow net name of selected wire to be changed
+(schSetEnv "editPropReadOnlyNetName" nil)
+
+; prompt user to update CDF terminal list when saving symbol
+(envSetVal "auCore.misc" "updateCDFtermOrder" 'boolean t)
+
+; prompt user to update CDF terminal list when saving schematic
 ;loadi("CCScheckAndUpdateCDF.il")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Layout Options
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; set default snap spacing
 ;(envSetVal "layout" "xSnapSpacing" 'float 0.010)
 ;(envSetVal "layout" "ySnapSpacing" 'float 0.010)
@@ -213,46 +200,48 @@ envSetVal("auCore.misc" "updateCDFtermOrder" 'boolean t)
 (envSetVal "layout" "dotStyleMajorGrid" 'boolean t)
 
 ; load SkillCAD
-when( getShellEnvVar("SKILLCAD_PATH") &&
-  isReadable( strcat( getShellEnvVar("SKILLCAD_PATH") "/source/skillcad.il"))
-  SKILLCAD_PACKAGES = list( "IC Layout" )
-  load( strcat( getShellEnvVar("SKILLCAD_PATH") "/source/skillcad.il"))
+(when (getShellEnvVar "SKILLCAD_PATH") &&
+  (isReadable (strcat (getShellEnvVar "SKILLCAD_PATH") "/source/skillcad.il"))
+  SKILLCAD_PACKAGES = (list "IC Layout")
+  (loadi (strcat (getShellEnvVar "SKILLCAD_PATH") "/source/skillcad.il"))
 )
 
 ; load GDS3D
-loadi("/opt/utils/GDS3D_1.8/skill/icdGDS3D.il")
+(loadi "/opt/utils/GDS3D_1.8/skill/icdGDS3D.il")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Simulation Options
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; set netlisting mode
-setShellEnvVar("CDS_Netlisting_Mode=Analog")
-cdsSetNetlistMode()
+(setShellEnvVar "CDS_Netlisting_Mode=Analog")
+(cdsSetNetlistMode)
+
+; Set licensing option
+(envSetVal "license" "ADEL_UseNextLicense" 'string "always")
 
 ; Set default simulation directory
 (envSetVal "asimenv.startup" "projectDir" 'string "./simulation")
 
-; load AFS
-;load( strcat( getShellEnvVar("AFS_ROOT") "/3rdParty/cdsinit-bda"))
+; load and set default simulator to AFS
+;(loadi (strcat (getShellEnvVar "AFS_ROOT") "/3rdParty/cdsinit-bda"))
+;(envSetVal "asimenv.startup" "simulator" 'string "afs")
 
-; set default simulator to AFS
-(envSetVal "asimenv.startup" "simulator" 'string "afs")
-
+; unknown function
 ;(envSetVal "afs.envOpts" "autoDisplay" 'boolean nil)
 
 ; load Variation Designer
-;load( strcat( getShellEnvVar("VARDES_HOME") "/common/interfaces/cadence/variation_designer.il" ))
+(loadi (strcat (getShellEnvVar "VARDES_HOME") 
+  "/common/interfaces/cadence/variation_designer.il" ))
 
 ; speed up ADEXL simulation startup
 ;(envSetVal "adexl.icrpStartup" "binaryName" 'string "virtuoso -nocdsinit")
 
 ; display a popup when ADEXL view is opened in read-only mode
-if( (CCSToolVersion) == "6.1" then
-  load("CCSAdexlReadDialog.il")
-)
+(if (CCSToolVersion) == "6.1" then (loadi "CCSAdexlReadDialog.il"))
 
 ; Stop loading previous simulation results
-;envSetVal("asimenv" "loadWaveScan" 'boolean "nil")
+;(envSetVal "asimenv" "loadWaveScan" 'boolean "nil")
 
 ; Change default Spectre transient output format from SST to psfbin (readable by WaveCrave)
 ;if( (CCSToolVersion) == "5.1" then
@@ -271,6 +260,7 @@ if( (CCSToolVersion) == "6.1" then
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Miscellaneous Options
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; customize titles for windows and icons
 (envSetVal "designEditor.window" "windowNameFormat"          'string "%a %m: %l %c %v %x")
 (envSetVal "designEditor.window" "iconNameFormat"            'string "%c:%v"             )
