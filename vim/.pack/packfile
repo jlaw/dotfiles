@@ -265,11 +265,6 @@
   name: "tpope/vim-rhubarb"
   opt: false
 - 
-  category: editing
-  local: false
-  name: "tpope/vim-rsi"
-  opt: false
-- 
   category: behavior
   local: false
   name: "tpope/vim-sleuth"
