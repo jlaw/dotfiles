@@ -37,7 +37,7 @@ env RCRC="$HOME/.dotfiles/rcrc" rcup
 Any additional tags (see below) may now be selected with `rcup -t`:
 
 ```sh
-rcup -t wsl
+rcup -t eda
 ```
 
 Finally, bootstrap the environment with the `bootstrap` script:
