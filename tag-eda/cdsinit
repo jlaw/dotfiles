@@ -223,17 +223,6 @@ ciw->displayMenuBindkeys = t                    ; ui.enableMenuShortcuts
 ; Set default simulation directory
 (envSetVal "asimenv.startup" "projectDir" 'string "./simulation")
 
-; load and set default simulator to AFS
-;(loadi (strcat (getShellEnvVar "AFS_ROOT") "/3rdParty/cdsinit-bda"))
-;(envSetVal "asimenv.startup" "simulator" 'string "afs")
-
-; unknown function
-;(envSetVal "afs.envOpts" "autoDisplay" 'boolean nil)
-
-; load Variation Designer
-(loadi (strcat (getShellEnvVar "VARDES_HOME") 
-  "/common/interfaces/cadence/variation_designer.il" ))
-
 ; speed up ADEXL simulation startup
 ;(envSetVal "adexl.icrpStartup" "binaryName" 'string "virtuoso -nocdsinit")
 
