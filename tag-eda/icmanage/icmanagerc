@@ -1,9 +1,14 @@
 [dfII]
+layout/change=960,360,450,550
+layout/checkout=6,31,939,630
+layout/icmanage=6,24,1920,1120,1013,0,577,437,438,438,1013,1
+layout/job=960,360,800,600
+layout/sync=6,31,655,550
 options/all_libraries_mode=yes
-options/all_workspaces=0
+options/all_workspaces=no
 options/checkout_select_all_libs=1
 options/dclick_view_edit=0
-options/old_selection_mode=0
+options/old_selection_mode=no
 options/show_cats=1
 options/show_files=0
 options/sync_select_all_libs=1
