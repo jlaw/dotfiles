@@ -12,6 +12,23 @@ sudo apt update
 sudo apt install rcm
 ```
 
+Ubuntu:
+```sh
+sudo add-apt-repository ppa:martin-frost/thoughtbot-rcm
+sudo apt install rcm
+```
+
+Fedora:
+```sh
+sudo dnf copr enable seeitcoming/rcm
+sudo dnf install rcm
+```
+
+FreeBSD:
+```sh
+pkg install git rcm
+```
+
 openSUSE/RHEL/CentOS:
 ```sh
 cd /etc/yum.repos.d/

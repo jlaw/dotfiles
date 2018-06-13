@@ -22,10 +22,10 @@ if status --is-interactive
     set -Ux PAGER less
     set -Ux MANPAGER 'nvim -c "set ft=man" -'
     set -Ux LESS '--RAW-CONTROL-CHARS --tabs=4'
-    set -Ux TERMINAL alacritty
     if test (uname) = "Darwin"
       set -Ux BROWSER open
     else
+      set -Ux TERMINAL alacritty
       if type -q firefox-nightly
         set -Ux BROWSER firefox-nightly
       else if type -q firefox
@@ -34,9 +34,6 @@ if status --is-interactive
         set -Ux BROWSER google-chrome
       end
     end
-
-    # libvirt
-    set -Ux LIBVIRT_DEFAULT_URI qemu:///system
 
     # fzf (core)
     set -Ux FZF_DEFAULT_COMMAND 'fd --type file'
@@ -60,35 +57,20 @@ if status --is-interactive
   end
 
   # per-shell setup logic
-  if set -q WSL
-    # connect ssh to the windows ssh-agent
-    if type -q weasel-pageant
-      source (weasel-pageant -q -r -S fish | psub)
-    end
+  # gpg-agent setup for local connections
+  if type -q gpg-connect-agent; and not set -q SSH_TTY; and not set -q MOSH; and not test (uname) = "Linux"
+    # launch gpg-agent with our pinentry-program (if not already running)
+    gpg-agent --pinentry-program "$HOME/.local/bin/pinentry" --daemon 2>/dev/null
 
-    # make sure gpg-agent is running
-    if type -q gpg-connect-agent.exe
-      gpg-connect-agent.exe /bye >/dev/null 2>&1
-    end
-
-    # connect X applications to the windows X11 server
-    set -x DISPLAY :0
-  else
-    # gpg-agent setup for local connections
-    if type -q gpg-connect-agent; and not set -q SSH_TTY; and not set -q MOSH
-      # launch gpg-agent with our pinentry-program (if not already running)
-      gpg-agent --pinentry-program "$HOME/.local/bin/pinentry" --daemon 2>/dev/null
-
-      # notify gpg-agent of our tty
-      set -x GPG_TTY (tty)
-      # notify gpg-agent's ssh compatibility of our tty
-      gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
-      # notify ssh of our gpg-agent socket
-      set -x SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
-    end
+    # notify gpg-agent of our tty
+    set -x GPG_TTY (tty)
+    # notify gpg-agent's ssh compatibility of our tty
+    gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+    # notify ssh of our gpg-agent socket
+    set -x SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
   end
 
-  if set -q WSL; or string match -q -r "(ttys|pts)" (tty)
+  if string match -q -r "(ttys|pts)" (tty)
     # start our main tmux session (on a pts)
     if type -q tmux; and not set -q TMUX; and not test (uname) = "Darwin"; and not test (uname) = "Linux"
       set -l session (prompt_hostname)

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+WINDOWS=$(wmctrl -l | awk '{ print $1 }')
+
+XPOS=0
+YPOS=0
+for WIN in $WINDOWS
+do
+  wmctrl -i -a $WIN
+  wmctrl -i -r $WIN -e 0,$XPOS,$YPOS,-1,-1
+  XPOS=$[$XPOS + 23]
+  YPOS=$[$YPOS + 23]
+done

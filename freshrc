@@ -1,15 +1,9 @@
 #!/usr/bin/env bash
 
 # fresh: bundler for dotfiles
-fresh freshshell/fresh bin/fresh --bin
-
-# gdbinit: gdbinit for OS X, iOS and others - x86, x86_64 and ARM
-#fresh gdbinit/Gdbinit gdbinit --file
+fresh freshshell/fresh bin/fresh --bin=~/.local/bin/fresh
 
 # format-udf: format a block device (hard drive or flash drive) in UDF
-fresh JElchison/format-udf format-udf.sh --bin=~/bin/format-udf
-
-# speedtest-cli: testing internet bandwidth using speedtest.net
-fresh sivel/speedtest-cli speedtest.py --bin=~/bin/speedtest
+fresh JElchison/format-udf format-udf.sh --bin=~/.local/bin/format-udf
 
 # vi:ft=sh:

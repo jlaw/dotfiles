@@ -1,5 +1,5 @@
 
-# Created by https://www.gitignore.io/api/linux,macos,windows,tags,vim
+# Created by https://www.gitignore.io/api/linux,lyx,macos,tags,vim
 
 ### Linux ###
 *~
@@ -15,6 +15,12 @@
 
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
+
+### LyX ###
+# Ignore LyX backup and autosave files
+# http://www.lyx.org/
+*.lyx~
+*.lyx#
 
 ### macOS ###
 *.DS_Store
@@ -72,26 +78,5 @@ Session.vim
 .netrwhist
 # auto-generated tag files
 
-### Windows ###
-# Windows thumbnail cache files
-Thumbs.db
-ehthumbs.db
-ehthumbs_vista.db
 
-# Folder config file
-Desktop.ini
-
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
-
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
-
-# Windows shortcuts
-*.lnk
-
-
-# End of https://www.gitignore.io/api/linux,macos,windows,tags,vim
+# End of https://www.gitignore.io/api/linux,lyx,macos,tags,vim

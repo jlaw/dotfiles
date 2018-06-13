@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+for i in *; do
+  n="`echo "$i" | tr [A-Z] [a-z]`"
+  mv "$i" "$n"
+done
+

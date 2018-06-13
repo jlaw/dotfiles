@@ -19,7 +19,7 @@ print_info() {
     info "CPU" cpu
     info "GPU" gpu
     info "Memory" memory
-    #info "Song" song
+    info "Song" song
 
     #info "Model" model
     #info "CPU Usage" cpu_usage
@@ -46,7 +46,7 @@ uptime_shorthand="off"
 shell_path="on"
 shell_version="off"
 
-#cpu_shorthand="off"
+cpu_shorthand="off"
 cpu_cores="logical"
 cpu_speed="off"
 cpu_temp="C"

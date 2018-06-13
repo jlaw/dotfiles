@@ -45,10 +45,6 @@ if status --is-login
   set parent (ps -o comm= (ps -o ppid= %self | tr -d '[:space:]'))
   test "$parent" = "mosh-server"
     and set -x MOSH 1
-
-  # wsl detection
-  string match -q -e "Microsoft" (uname -r)
-    and set -x WSL 1
 end
 
 # vi:ft=fish:

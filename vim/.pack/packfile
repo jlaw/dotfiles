@@ -111,11 +111,6 @@
 - 
   category: navigation
   local: false
-  name: "junegunn/vim-slash"
-  opt: false
-- 
-  category: navigation
-  local: false
   name: "justinmk/vim-dirvish"
   opt: false
 - 

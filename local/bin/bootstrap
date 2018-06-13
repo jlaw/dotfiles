@@ -65,11 +65,12 @@ section "Packages"
     info "Installing packages with brew..."
     sh -c "brew install $bld $lib $usr"
   elif command -v yum >/dev/null; then
-    bld=""
-    lib=""
-    usr="ctags fish gnupg2 htop mosh neovim ShellCheck socat tig tmux2u unzip vim-enhanced"
+    bld="cmake"
+    lib="freetype-devel fontconfig-devel"
+    usr="ctags fish gnupg2 htop mosh neovim ShellCheck socat tig tmux2u unzip vim-enhanced xclip"
 
     info "Installing packages with yum..."
+    su root -c "yum groupinstall -y \"Development Tools\""
     su root -c "yum install -y $bld $lib $usr"
   else
     error "No package manager found. Is this a supported system?"
@@ -337,6 +338,7 @@ section "CLI Tools"
   install_npm_tool "git-open"
   install_python_tool "asciinema"
   install_python_tool "legit"
+  install_python_tool "speedtest-cli"
   install_rust_tool "exa"
   install_rust_tool "fd-find"
   #install_rust_tool "hyperfine"
@@ -349,6 +351,11 @@ section "CLI Tools"
   info "Installing/updating fzf-tmux..."
   curl https://raw.githubusercontent.com/junegunn/fzf/master/bin/fzf-tmux -fsSLo "$HOME/.local/bin/fzf-tmux"
   chmod +x "$HOME/.local/bin/fzf-tmux"
+endsection
+
+
+section "GUI Tools"
+  install_rust_tool "alacritty" "https://github.com/jwilm/alacritty"
 endsection
 
 printf "\\n"
