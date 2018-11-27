@@ -43,12 +43,17 @@ if status --is-interactive; and not set -q TMUX
       # use 'physical' tty
       set session $tty
     end
+    
+    set -l control_mode
+    if test (uname) = 'Darwin'
+      set control_mode -CC
+    end
 
     # create or attach to tmux session
     if tmux has-session -t $session
-      tmux -CC attach-session -t $session \; run-shell 'pkill -USR1 -P #{pid} fish'
+      tmux $control_mode attach-session -t $session \; run-shell 'pkill -USR1 -P #{pid} fish'
     else
-      tmux -CC new-session -s $session
+      tmux $control_mode new-session -s $session
     end
   end
 end
