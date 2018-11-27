@@ -9,16 +9,25 @@
 (sstatus writeProtect nil)
 
 ; custom SKILL code
-(setSkillPath (cons "~/.cadence/skill/ccs"     (getSkillPath)))
-(setSkillPath (cons "~/.cadence/skill/fs"      (getSkillPath)))
-(setSkillPath (cons "~/.cadence/skill/scripts" (getSkillPath)))
-(setSkillPath (cons "~/.cadence/skill"         (getSkillPath)))
+(setSkillPath (cons "~/managed/pdk/skill/modules" (getSkillPath)))
+(setSkillPath (cons "~/managed/pdk/skill/ccs"     (getSkillPath)))
+(setSkillPath (cons "~/managed/pdk/skill/fs"      (getSkillPath)))
+(setSkillPath (cons "~/managed/pdk/skill/scripts" (getSkillPath)))
+(setSkillPath (cons "~/managed/pdk/skill"         (getSkillPath)))
+(setSkillPath (cons "./0_skillScripts"    (getSkillPath)))
 
 ; return tool version
 (loadi "CCSToolVersion.il")
 
 ; load Forza SKILL
-(loadi "FSC.il")
+(loadi "ACTIVE.il")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ICManage
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; list of views to skip during check-in
+;(setq ICM_ViewsUnManaged (cons "netlist_tmp" ICM_ViewsUnManaged))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Bindkeys
@@ -184,8 +193,14 @@ ciw->displayMenuBindkeys = t                    ; ui.enableMenuShortcuts
 ; set default snap spacing
 ;(envSetVal "layout" "xSnapSpacing" 'float 0.010)
 ;(envSetVal "layout" "ySnapSpacing" 'float 0.010)
-;(envSetVal "layout" "xSnapSpacing" 'float 0.005)
-;(envSetVal "layout" "ySnapSpacing" 'float 0.005)
+(envSetVal "layout" "xSnapSpacing" 'float 0.005)
+(envSetVal "layout" "ySnapSpacing" 'float 0.005)
+
+; default to partial selection mode
+(envSetVal "layout" "partialSelect" 'boolean t)
+
+; gravity on
+(envSetVal "layout" "gravityOn" 'boolean t)
 
 ; enable partial selection mode for FGR
 (envSetVal "graphic" "supportFluidInstance" 'boolean t)
@@ -283,7 +298,7 @@ ciw->displayMenuBindkeys = t                    ; ui.enableMenuShortcuts
 (envSetVal "viva.axis"                "font"                'string "Fixed [Misc],14,-1,5,50,0,0,0,0,0")
 
 ; trace
-(envSetVal "asimenv.plotting"               "useDisplayDrf"       'boolean nil)
+(envSetVal "asimenv.plotting"         "useDisplayDrf"       'boolean nil)
 ;(envSetVal "viva.trace"               "lineThickness"       'string "medium")
 (envSetVal "viva.trace"               "lineStyle"           'string "Solid")
 
@@ -328,7 +343,8 @@ ciw->displayMenuBindkeys = t                    ; ui.enableMenuShortcuts
 ; misc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 setPrompts("jlaw >" "")
-editor = "xterm -e nvim";
+;editor = "xterm -e nvim";
+editor = "pluma";
 user_cdsinit = t
 
 printf("END OF ~/.cdsinit CUSTOMIZATION\n")
