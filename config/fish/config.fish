@@ -1,91 +1,60 @@
-if status --is-interactive
-  # use 24bit color in non-basic terminals
-  if test "$TERM" != "xterm"; and test "$TERM" != "linux"
-    set -g fish_term24bit 1
-  end
+if not set -q fish_initialized
+  # mark shell initialized
+  set -U fish_initialized
+end
 
-  if test (uname) = "Darwin"
-    source "$HOME/.config/fish/homebrew.fish"
-  end
-
-  # first-time universal variable provisioning
-  # this allows variables to be overridden locally with set -U
-  # set -Ue fish_initialized to reset
-  if not set -q fish_initialized;
-    source "$HOME/.config/fish/abbreviations.fish"
-    source "$HOME/.config/fish/appearance.fish"
-
-    # shell environment
-    set -gx LANG en_US.UTF-8
-    set -Ux VISUAL nvim
-    set -Ux EDITOR nvim
-    set -Ux PAGER less
-    set -Ux MANPAGER 'nvim -c "set ft=man" -'
-    set -Ux LESS '--RAW-CONTROL-CHARS --tabs=4'
-    if test (uname) = "Darwin"
-      set -Ux BROWSER open
-    else
-      set -Ux TERMINAL alacritty
-      if type -q firefox-nightly
-        set -Ux BROWSER firefox-nightly
-      else if type -q firefox
-        set -Ux BROWSER firefox
-      else if type -q google-chrome
-        set -Ux BROWSER google-chrome
-      end
+# ssh/gpg startup
+if status --is-login; and not set -q SSH_CONNECTION
+  if set -q WSL
+    if not set -q SSH_AUTH_SOCK
+      # make sure gpg-agent is up
+      command -sq gpg-connect-agent.exe; and gpg-connect-agent.exe /bye >/dev/null 2>&1
+      # connect ssh to windows gpg-agent via weasel-pageant
+      command -sq weasel-pageant; and weasel-pageant -q -S fish | source
     end
-
-    # fzf (core)
-    set -Ux FZF_DEFAULT_COMMAND 'fd --type file'
-    set -Ux FZF_DEFAULT_OPTS '--no-bold'
-    if set -q fish_term24bit
-      set -Ux FZF_DEFAULT_OPTS "$FZF_DEFAULT_OPTS --color=fg:#839496,bg:#002b36,hl:#eee8d5,fg+:#839496,bg+:#073642,hl+:#d33682 --color=info:#2aa198,prompt:#839496,pointer:#fdf6e3,marker:#fdf6e3,spinner:#2aa198"
-    else
-      set -Ux FZF_DEFAULT_OPTS "$FZF_DEFAULT_OPTS --color=fg:12,bg:8,hl:7,fg+:12,bg+:0,hl+:5 --color=info:6,prompt:12,pointer:15,marker:15,spinner:6"
+    if test ! -e $GNUPGHOME/S.gpg-agent
+      # connect gpg to windows gpg-agent via socat/npiperelay
+      command -sq npiperelay.exe; and gpg-relay (command -s npiperelay.exe)
     end
-
-    # fzf (plugin)
-    set -U FZF_TMUX 1
-    set -U FZF_TMUX_HEIGHT 25%
-    set -U FZF_COMPLETE 2
-    set -U FZF_LEGACY_KEYBINDINGS 0
-    set -U FZF_FIND_FILE_COMMAND $FZF_DEFAULT_COMMAND
-    set -U FZF_CD_COMMAND 'fd --type directory --follow'
-    set -U FZF_CD_WITH_HIDDEN_COMMAND 'fd --type directory --follow --hidden --exclude .git'
-
-    set -U fish_initialized
-  end
-
-  # per-shell setup logic
-  # gpg-agent setup for local connections
-  if type -q gpg-connect-agent; and not set -q SSH_TTY; and not set -q MOSH; and not test (uname) = "Linux"
-    # launch gpg-agent with our pinentry-program (if not already running)
-    gpg-agent --pinentry-program "$HOME/.local/bin/pinentry" --daemon 2>/dev/null
-
-    # notify gpg-agent of our tty
-    set -x GPG_TTY (tty)
-    # notify gpg-agent's ssh compatibility of our tty
-    gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
-    # notify ssh of our gpg-agent socket
+  else if not string match -q -r 'S.gpg-agent.ssh$' $SSH_AUTH_SOCK
+    # connect ssh to gpg-agent
     set -x SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
   end
+end
 
-  if string match -q -r "(ttys|pts)" (tty)
-    # start our main tmux session (on a pts)
-    if type -q tmux; and not set -q TMUX; and not test (uname) = "Darwin"; and not test (uname) = "Linux"
-      set -l session (prompt_hostname)
-      if tmux has-session -t "$session" 2>/dev/null
-        tmux new-session -t "$session"\; set-option destroy-unattached
-      else
-        tmux new-session -s "$session"
-      end
-    end
+# tmux/X startup
+if status --is-interactive; and not set -q TMUX
+  set -l tty (tty)
+
+  if not set -q DISPLAY; and command -sq startx; and string match -q -r '^/dev/tty(1|v0)$' $tty
+    # start i3 if installed (first tty only)
+    command -sq i3; and exec startx $XDG_CONFIG_HOME/xinit/i3
   else
-    # start our X11 session (on tty1)
-    if test "$XDG_VTNR" -eq 1
-      exec startx
+    set -l session
+
+    # determine session name
+    if set -q SSH_CONNECTION
+      # use ssh client name
+      set session (string replace --all '.' '-' (string split ' ' $SSH_CONNECTION)[1])
+    else if string match -q -r '^/dev/(pts/\d+|ttys\d+)$' $tty
+      # use local-pty tmux session
+      set session (hostname -s)
+    else
+      # use 'physical' tty
+      set session $tty
+    end
+
+    # create or attach to tmux session
+    if tmux has-session -t $session
+      tmux -CC attach-session -t $session \; run-shell 'pkill -USR1 -P #{pid} fish'
+    else
+      tmux -CC new-session -s $session
     end
   end
 end
 
-# vi:ft=fish:
+# non-WSL post-startup
+if status --is-interactive; and not set -q WSL
+  set -x GPG_TTY (tty)
+  gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+end

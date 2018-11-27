@@ -1,6 +1,7 @@
-function path_append -a dir -d 'append dir to PATH'
-  test -n "$dir" -a -d "$dir"; or return
-  set dir (realpath $dir)
-  set PATH $PATH $dir
+function path_append -d 'append entries to PATH'
+  for entry in $argv
+    set -l i (contains -i $entry $PATH); and set -e PATH[$i]
+    test -e $entry; and set PATH $PATH $entry
+  end
 end
 

@@ -1,8 +1,9 @@
-function pyserve -d "serve files using python"
-  if test -n "$argv"
-    set -l port $argv
+function pyserve -d 'serve files using python'
+  set -l port
+  if set -q $argv[1]
+    set port $argv[1]
   else
-    set -l port 8000
+    set port 8000
   end
 
   python3 -m http.server $port

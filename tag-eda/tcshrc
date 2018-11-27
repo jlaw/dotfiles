@@ -1,3 +1,0 @@
-if $?AMS_SCRIPT then
-  source $AMS_SCRIPT
-endif

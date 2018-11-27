@@ -6,61 +6,37 @@
     name = Jackson Law
     email = 178053+jlaw@users.noreply.github.com
 [credential]
-    helper = cache --timeout=3600
     username = jlaw
+    helper = manager 2>/dev/null
+    helper = netrc -f ${XDG_CONFIG_HOME:-$HOME/.config}/git/credentials.gpg
+    helper = cache --timeout=3600
 
 #
 # General Config
 #
 
-[core]
-    excludesFile = ~/.config/git/ignore
-    attributesFile = ~/.config/git/attributes
 [status]
     short = true
     branch = true
-    showUntrackedFiles = all
+    showStash = true
     submoduleSummary = true
-[stash]
-    showStat = true
-    showPatch = true
-[blame]
-    date = short
-[log]
-    abbrevCommit = true
-    date = relative
-    decorate = auto
 [format]
-    pretty = format:%C(yellow)%h%C(magenta)% G? %C(blue)%<(12,trunc)%ad %C(green)%<(16,trunc)%aN %C(reset)%s%C(red)%d
-[push]
-    default = simple
-[pull]
-    rebase = true
-    ff = true
+    pretty = %C(yellow)%h%C(magenta)% G? %C(blue)%<(12,trunc)%ar %C(green)%<(16,trunc)%aN %C(reset)%s%C(red)%d
+[pager]
+    branch = less --quit-if-one-screen --no-init
+    diff = diff-so-fancy | less --quit-if-one-screen --no-init
+    show = diff-so-fancy | less --quit-if-one-screen --no-init
+
 [diff]
     tool = nvr
-    renames = copies
-    indentHeuristic = true
     algorithm = patience
 [merge]
     tool = nvr
-    defaultToUpstream = true
 [rebase]
     stat = true
     autoSquash = true
-    autoStash = true
-    missingCommitsCheck = error
-[difftool "nvr"]
-    cmd = nvr -s -d $LOCAL $REMOTE
-[mergetool "nvr"]
-    cmd = nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='
-[help]
-    autoCorrect = 1
-[filter "lfs"]
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
+[sequence]
+    editor = interactive-rebase-tool
 
 #
 # Servers
@@ -71,16 +47,37 @@
     pushInsteadOf = git://github.com/
 
 #
+# Tools
+#
+
+[difftool "nvr"]
+    cmd = nvr -s -d $LOCAL $REMOTE
+[mergetool "nvr"]
+    cmd = nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='
+
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+
+#
 # Aliases
 #
 
 [alias]
-    # rewrite history
-    change-commits = "!f() { VAR=$1; OLD=$2; NEW=$3; shift 3; git filter-branch --env-filter \"if [[ \\\"$`echo $VAR`\\\" = '$OLD' ]]; then export $VAR='$NEW'; fi\" $@; }; f "
-    # from https://help.github.com/articles/remove-sensitive-data
-    remove-file = "!f() { git filter-branch -f --index-filter \"git rm --cached --ignore-unmatch $1\" --prune-empty --tag-name-filter cat -- --all; }; f"
-    # diff-so-fancy
-    difff = "!f() { git diff --color=always $@ | diff-so-fancy; }; f"
+    # fzf primitives
+    fzf = "!f() { fzf --height=100% --ansi --preview='git fzf-pre {}' -q \"$1\" | cut -d' ' -f1; }; f"
+    fzf-pre = "!f() { git show --stat --color $(echo $1 | cut -d ' ' -f1); }; f "
+    # interactively select commits
+    sel = "!f() { git log --oneline --color | git fzf $1; }; f"
+    rsel = "!f() { git log -g --oneline --color |  git fzf $1; }; f"
+    sel-ref = "!f() { git show-ref --abbrev |  git fzf $1; }; f"
+    # quick and easy autosquash commits
+    squash = "!f() { git commit --squash=$(git sel $1); }; f"
+    fixup = "!f() { git commit --fixup=$(git sel $1); }; f"
+    # quick and easy branch tracking
+    track = "!f() { git branch -u $(git branch -r --format '%(refname:short)' | git fzf $1); }; f"
     # legit
     switch = !legit switch
     sync = !legit sync
@@ -100,10 +97,3 @@
     frag = yellow
     meta = magenta
     commit = cyan
-
-#
-# Includes
-#
-
-[include]
-    path = ~/.config/git/config.local

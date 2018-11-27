@@ -1,10 +1,8 @@
-function path_remove -a entry -d 'remove entry from PATH'
-  test -n "$entry"; or return
-  contains "$entry" $PATH; and return
-
-  for i in (seq (count $PATH) -1 1)
-    test $PATH[$i] = $entry
-    and set -e PATH[$i]
+function path_remove -d 'remove entries from PATH'
+  for entry in $argv
+    while set -l i (contains -i $entry $PATH)
+      set -e PATH[$i]
+    end
   end
 end
 

@@ -1,4 +1,4 @@
-function nvim -d "vim improved"
+function nvim -d 'vim improved'
   if set -q NVIM_LISTEN_ADDRESS
     command nvr --remote $argv
   else

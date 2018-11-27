@@ -1,3 +1,0 @@
-if has('neovim')
-  GuiFont PragmataProMono:h14
-endif
