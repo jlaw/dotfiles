@@ -29,6 +29,12 @@ case $(uname) in
       USR="ctags elinks fish gdb git git-lfs gnupg htop jq lftp bsdtar perl-File-MimeInfo mosh neofetch neovim ShellCheck socat stow task-spooler tig tmux unzip whois xdg-utils"
 
       INSTALLED=$(dnf repoquery --installed --queryformat '%{name}')
+    elif command -v yum >/dev/null; then
+      BLD="automake bison ccache clang cmake gcc make pkgconfig"
+      LIB="bzip2-devel gdbm-devel libffi-devel libuuid-devel libyaml-devel ncurses-devel openssl-devel readline-devel sqlite-devel zlib-devel"
+      USR="ctags elinks fish gdb git git-lfs gnupg htop jq lftp bsdtar perl-File-MimeInfo mosh neofetch neovim ShellCheck socat stow tig tmux2u unzip whois xdg-utils"
+
+      INSTALLED=$(rpm -qa --queryformat '%{name}\n')
     else
       error "Unsupported package manager."
     fi
@@ -68,6 +74,9 @@ if [ -n "$PKGS" ]; then
         elif command -v dnf >/dev/null; then
           info "Installing system packages with dnf..."
           sudo sh -c "dnf install --setopt=install_weak_deps=False --best -y $PKGS"
+        elif command -v yum >/dev/null; then
+          info "Installing system packages with yum..."
+          sudo sh -c "yum install -y $PKGS"
         fi
         ;;
       FreeBSD)
