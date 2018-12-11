@@ -3,97 +3,113 @@
 #
 
 [user]
-    name = Jackson Law
-    email = 178053+jlaw@users.noreply.github.com
+	name = Jackson Law
+	email = 178053+jlaw@users.noreply.github.com
 [credential]
-    username = jlaw
-    helper = manager 2>/dev/null
-    helper = netrc -f ${XDG_CONFIG_HOME:-$HOME/.config}/git/credentials.gpg
-    helper = cache --timeout=3600
+	username = jlaw
+	helper = manager 2>/dev/null
+	helper = netrc -f ${XDG_CONFIG_HOME:-$HOME/.config}/git/credentials.gpg
+	helper = cache --timeout=3600
 
 #
 # General Config
 #
 
-[status]
-    short = true
-    branch = true
-    showStash = true
-    submoduleSummary = true
-[format]
-    pretty = %C(yellow)%h%C(magenta)% G? %C(blue)%<(12,trunc)%ar %C(green)%<(16,trunc)%aN %C(reset)%s%C(red)%d
-[pager]
-    branch = less --quit-if-one-screen --no-init
-    diff = diff-so-fancy | less --quit-if-one-screen --no-init
-    show = diff-so-fancy | less --quit-if-one-screen --no-init
+[pull]
+	rebase = true
+[push]
+	followTags = true
+
+[commit]
+	verbose = true
 
 [diff]
-    tool = nvr
-    algorithm = patience
+	mnemonicprefix = true
+	algorithm = patience
+	tool = nvr
 [merge]
-    tool = nvr
+	tool = nvr
 [rebase]
-    stat = true
-    autoSquash = true
+	stat = true
+	autoSquash = true
+
+[interactive]
+	singleKey = true
 [sequence]
-    editor = interactive-rebase-tool
+	editor = interactive-rebase-tool
+
+[status]
+	short = true
+	branch = true
+	showStash = true
+	submoduleSummary = true
+[log]
+	abbrevCommit = true
+
+
+[core]
+	pager = less --quit-if-one-screen --no-init
+[pager]
+	diff = diff-so-fancy | $(git config --get core.pager)
+	show = diff-so-fancy | $(git config --get core.pager)
+
+[format]
+	pretty = onelineplus
+[pretty]
+	onelineplus = format:%C(yellow)%h%C(auto)%d%C(reset) %s %C(blue)(%cr)%C(reset) %C(green)<%aN>
+	columns = format:%C(yellow)%h%C(magenta)% G? %C(blue)%<(12,trunc)%ar %C(green)%<(16,trunc)%aN %C(reset)%s%C(auto)%d
 
 #
 # Servers
 #
 
 [url "git@github.com:"]
-    pushInsteadOf = https://github.com/
-    pushInsteadOf = git://github.com/
+	pushInsteadOf = https://github.com/
+	pushInsteadOf = git://github.com/
 
 #
 # Tools
 #
 
 [difftool "nvr"]
-    cmd = nvr -s -d $LOCAL $REMOTE
+	cmd = nvr -s -d $LOCAL $REMOTE
 [mergetool "nvr"]
-    cmd = nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='
+	cmd = nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='
 
 [filter "lfs"]
-    clean = git-lfs clean -- %f
-    smudge = git-lfs smudge -- %f
-    process = git-lfs filter-process
-    required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[icdiff]
+	options = --line-numbers --no-bold
 
 #
 # Aliases
 #
 
 [alias]
-    # fzf primitives
-    fzf = "!f() { fzf --height=100% --ansi --preview='git fzf-pre {}' -q \"$1\" | cut -d' ' -f1; }; f"
-    fzf-pre = "!f() { git show --stat --color $(echo $1 | cut -d ' ' -f1); }; f "
-    # interactively select commits
-    sel = "!f() { git log --oneline --color | git fzf $1; }; f"
-    rsel = "!f() { git log -g --oneline --color |  git fzf $1; }; f"
-    sel-ref = "!f() { git show-ref --abbrev |  git fzf $1; }; f"
-    # quick and easy autosquash commits
-    squash = "!f() { git commit --squash=$(git sel $1); }; f"
-    fixup = "!f() { git commit --fixup=$(git sel $1); }; f"
-    # quick and easy branch tracking
-    track = "!f() { git branch -u $(git branch -r --format '%(refname:short)' | git fzf $1); }; f"
-    # legit
-    switch = !legit switch
-    sync = !legit sync
-    publish = !legit publish
-    unpublish = !legit unpublish
-    undo = !legit undo
-    branches = !legit branches
-
-#
-# Colors
-#
-
-[color "diff"]
-    whitespace = red reverse
-    new = green
-    old = red
-    frag = yellow
-    meta = magenta
-    commit = cyan
+	# fzf primitives
+	fzf = "!f() { fzf --height=100% --ansi --preview='git fzf-pre {}' -q \"$1\" | cut -d' ' -f1; }; f"
+	fzf-pre = "!f() { git show --stat --color $(echo $1 | cut -d ' ' -f1); }; f "
+	# interactively select commits
+	sel = "!f() { git log --oneline --color | git fzf $1; }; f"
+	rsel = "!f() { git log -g --oneline --color |  git fzf $1; }; f"
+	sel-ref = "!f() { git show-ref --abbrev | git fzf $1; }; f"
+	# quick and easy autosquash commits
+	squash = "!f() { git commit --squash=$(git sel $1); }; f"
+	fixup = "!f() { git commit --fixup=$(git sel $1); }; f"
+	# quick and easy branch tracking
+	track = "!f() { git branch -u $(git branch -r --format '%(refname:short)' | git fzf $1); }; f"
+	# misc aliases
+	prune = fetch --prune
+	stash-all = stash save --include-untracked
+	preset = !git diff -p -R | grep -E '^(diff|(old|new) mode)' | git apply
+	# legit
+	switch = !legit switch
+	sync = !legit sync
+	publish = !legit publish
+	unpublish = !legit unpublish
+	undo = !legit undo
+	branches = !legit branches

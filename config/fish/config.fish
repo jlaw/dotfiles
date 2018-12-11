@@ -1,7 +1,5 @@
-if not set -q fish_initialized
-  # mark shell initialized
-  set -U fish_initialized
-end
+# mark shell initialized
+set -q fish_initialized; or set -U fish_initialized
 
 # ssh/gpg startup
 if status --is-login; and not set -q SSH_CONNECTION
@@ -16,7 +14,7 @@ if status --is-login; and not set -q SSH_CONNECTION
       # connect gpg to windows gpg-agent via socat/npiperelay
       command -sq npiperelay.exe; and gpg-relay (command -s npiperelay.exe)
     end
-  else if not string match -q -r 'S.gpg-agent.ssh$' $SSH_AUTH_SOCK
+  else if not string match -rq 'S.gpg-agent.ssh$' $SSH_AUTH_SOCK
     # connect ssh to gpg-agent
     set -x SSH_AUTH_SOCK (gpgconf --list-dirs agent-ssh-socket)
   end
@@ -26,18 +24,19 @@ end
 if status --is-interactive; and not set -q TMUX
   set -l tty (tty)
 
-  if not set -q DISPLAY; and command -sq startx; and string match -q -r '^/dev/tty(1|v0)$' $tty
+  if not set -q DISPLAY; and command -sq startx; and string match -rq '^/dev/tty(1|v0)$' $tty
     # start i3 if installed (first tty only)
     command -sq i3; and exec startx $XDG_CONFIG_HOME/xinit/i3
   else
     set -l session
+    set -l command
 
     # determine session name
     if set -q SSH_CONNECTION
-      # use ssh client name
-      set session (string replace --all '.' '-' (string split ' ' $SSH_CONNECTION)[1])
-    else if string match -q -r '^/dev/(pts/\d+|ttys\d+)$' $tty
-      # use local-pty tmux session
+      # use a combination of hostname and ssh client
+      set session (hostname -s)-(string replace -a '.' '-' (string split ' ' $SSH_CONNECTION)[1])
+    else if string match -rq '^/dev/(pts/\d+|ttys\d+)$' $tty
+      # use primary tmux session
       set session (hostname -s)
     else
       # use 'physical' tty
@@ -49,12 +48,18 @@ if status --is-interactive; and not set -q TMUX
       set control_mode -CC
     end
 
-    # create or attach to tmux session
-    if tmux has-session -t $session
-      tmux $control_mode attach-session -t $session \; run-shell 'pkill -USR1 -P #{pid} fish'
-    else
-      tmux $control_mode new-session -s $session
+
+    # determine startup command
+    if string match -q "$session 0" (tmux list-sessions -F '#{session_name} #{session_attached}' 2>/dev/null)
+      # attach to unattached session
+      set command attach-session -t $session \; run-shell 'pkill -USR1 -P #{pid} fish'
+    else if not tmux has-session -t $session 2>/dev/null
+      # create non-existant setting
+      set command new-session -s $session
     end
+
+    # run tmux startup command
+    test -n "$command"; and sleep 0.1; and exec tmux $control_mode -f $XDG_CONFIG_HOME/tmux/tmux.conf -- $command
   end
 end
 

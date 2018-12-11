@@ -1,4 +1,7 @@
 #!/bin/sh
+
+# http://www.troubleshooters.com/linux/coasterless.htm
+
 device=$1
 
 blocksize=`isoinfo -d -i $device | grep "^Logical block size is:" | cut -d " " -f 5`

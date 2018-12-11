@@ -8,8 +8,8 @@ function __fish_term24bit --on-variable COLORTERM
 end
 
 # aggressive color support
-if status --is-interactive; and not set -q COLORTERM
-  if string match -q -r '^(xterm|linux)$' $TERM
+if status --is-interactive
+  if string match -rq '^(xterm|linux)$' $TERM
     set -x COLORTERM ''
   else
     set -x COLORTERM 'truecolor'
