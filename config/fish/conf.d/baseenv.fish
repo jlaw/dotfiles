@@ -15,11 +15,3 @@ end
 if not set -q XDG_CACHE_HOME
   set -x XDG_CACHE_HOME $HOME/.cache
 end
-
-# wsl
-if not set -q WSL; and set -q WSLENV
-  set -x WSL (string match -r '^\d.\d.\d-(\d+)-Microsoft$' (uname -r))[2]
-  set -x DISPLAY ':0'
-  set -x SHELL (command -v fish)
-  set -x BROWSER 'powershell.exe Start'
-end
