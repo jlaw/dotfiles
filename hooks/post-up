@@ -11,27 +11,68 @@ section "System Packages"
 case $(uname) in
   Linux)
     if command -v pacman >/dev/null; then
-      BLD="autoconf automake bison ccache clang cmake fakeroot gcc make pkgconf"
-      LIB="libyaml"
-      USR="ctags elinks fish gdb git git-lfs htop jq lftp perl-file-mimeinfo mosh neofetch neovim shellcheck socat stow tig tmux unzip whois xdg-utils"
+      BLD="ccache clang"
+      LIB=""
+      USR="bat ctags diff-so-fancy direnv exa fac fd fish fzf git git-lfs hexyl htop hub neovim ripgrep shellcheck unzip xdg-utils"
 
       INSTALLED=$(pacman -Qq)
+    
+      pack=https://github.com/maralla/pack/releases/download/v0.2.3/pack-v0.2.3-x86_64-unknown-linux-gnu.tar.gz
+      curl -sL ${pack} | tar x -C ${HOME}/.local/bin/ pack
+      
+      icdiff=https://github.com/jeffkaufman/icdiff/archive/release-1.9.4.tar.gz
+      curl -sL ${icdiff} | tar x -C ${HOME}/.local/bin/ --strip-components=1 icdiff-release-1.9.4/{git-icdiff,icdiff}
     elif command -v yum >/dev/null; then
-      BLD="automake bison ccache clang cmake gcc make pkgconfig"
-      LIB="bzip2-devel gdbm-devel libffi-devel libuuid-devel libyaml-devel ncurses-devel openssl-devel readline-devel sqlite-devel zlib-devel"
-      USR="ctags elinks fish gdb git git-lfs gnupg htop jq lftp bsdtar perl-File-MimeInfo mosh neofetch neovim ShellCheck socat stow tig tmux2u unzip whois xdg-utils"
+      BLD="ccache clang"
+      LIB=""
+      USR="ctags fish git git-lfs htop bsdtar neovim ripgrep ShellCheck unzip xdg-utils"
 
       INSTALLED=$(rpm -qa --queryformat '%{name}\n')
+      
+      git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+      ~/.fzf/install
+    
+      pack=https://github.com/maralla/pack/releases/download/v0.2.3/pack-v0.2.3-x86_64-unknown-linux-gnu.tar.gz
+      curl -sL ${pack} | tar x -C ${HOME}/.local/bin/ pack
+      
+      exa=https://github.com/ogham/exa/releases/download/v0.8.0/exa-linux-x86_64-0.8.0.zip
+      curl -sL ${exa} | tar x -C ${HOME}/.local/bin/ exa-linux-x86_64 && mv ${HOME}/.local/bin/exa{-linux-x86_64,}
+      
+      direnv=https://github.com/direnv/direnv/releases/download/v2.18.2/direnv.linux-amd64
+      curl -sL ${direnv} > ${HOME}/.local/bin/direnv
+      
+      bat=https://github.com/sharkdp/bat/releases/download/v0.9.0/bat-v0.9.0-x86_64-unknown-linux-gnu.tar.gz
+      curl -sL ${bat} | tar x -C ${HOME}/.local/bin/ --strip-components=1 bat-v0.9.0-x86_64-unknown-linux-gnu/bat
+      
+      icdiff=https://github.com/jeffkaufman/icdiff/archive/release-1.9.4.tar.gz
+      curl -sL ${icdiff} | tar x -C ${HOME}/.local/bin/ --strip-components=1 icdiff-release-1.9.4/{git-icdiff,icdiff}
+    
+      hexyl=https://github.com/sharkdp/hexyl/releases/download/v0.2.0/hexyl-v0.2.0-x86_64-unknown-linux-gnu.tar.gz
+      curl -sL ${hexyl} | tar x -C ${HOME}/.local/bin/ --strip-components=1 hexyl-v0.2.0-x86_64-unknown-linux-gnu/hexyl
+      
+      fd=https://github.com/sharkdp/fd/releases/download/v7.2.0/fd-v7.2.0-x86_64-unknown-linux-gnu.tar.gz
+      curl -sL ${fd} | tar x -C ${HOME}/.local/bin/ --strip-components=1 fd-v7.2.0-x86_64-unknown-linux-gnu/fd
     else
       error "Unsupported package manager."
     fi
     ;;
   Darwin)
-    BLD="automake ccache cmake"
-    LIB="gmp gdbm libffi libyaml openssl readline"
-    USR="coreutils ctags curl fish gdb git git-lfs gnupg htop jq lftp mosh neofetch neovim pinentry-mac shellcheck socat stow task-spooler tmux unzip xz"
+    BLD="ccache"
+    LIB=""
+    USR="bat coreutils ctags curl diff-so-fancy direnv exa fac fd fish fzf git git-lfs htop hub neovim ripgrep shellcheck unzip xz"
 
     INSTALLED=$(brew ls -1)
+    
+    brew tap mkchoi212/fac https://github.com/mkchoi212/fac.git
+    
+    pack=https://github.com/maralla/pack/releases/download/v0.2.3/pack-v0.2.3-x86_64-apple-darwin.tar.gz
+    curl -sL ${pack} | tar x -C ${HOME}/.local/bin/ pack
+    
+    hexyl=https://github.com/sharkdp/hexyl/releases/download/v0.2.0/hexyl-v0.2.0-x86_64-apple-darwin.tar.gz
+    curl -sL ${hexyl} | tar x -C ${HOME}/.local/bin/ --strip-components=1 hexyl-v0.2.0-x86_64-apple-darwin/hexyl
+    
+    icdiff=https://github.com/jeffkaufman/icdiff/archive/release-1.9.4.tar.gz
+    curl -sL ${icdiff} | tar x -C ${HOME}/.local/bin/ --strip-components=1 icdiff-release-1.9.4/{git-icdiff,icdiff}
     ;;
   *)
     error "Unsupported operating system."
@@ -43,26 +84,24 @@ for pkg in $BLD $LIB $USR; do
   fi
 done
 if [ -n "$PKGS" ]; then
-  if [ -z "$SKIP_PKGS" ]; then
-    case $(uname) in
-      Linux)
-        if command -v pacman >/dev/null; then
-          info "Installing system packages with pacman..."
-          sudo sh -c "pacman -Sy --noconfirm $PKGS"
-        elif command -v yum >/dev/null; then
-          info "Installing system packages with yum..."
-          sudo sh -c "yum install -y $PKGS"
-        fi
-        ;;
-      Darwin)
-        info "Installing system packages with brew..."
-        sh -c "brew install $PKGS"
-        ;;
-    esac
-  else
-    important "The following system packages are missing:"
-    echo "$PKGS"
-  fi
+  case $(uname) in
+    Linux)
+      if command -v yay >/dev/null; then
+        info "Installing system packages with yay..."
+        sh -c "yay -Sy --noconfirm $PKGS"
+      elif command -v pacman >/dev/null; then
+        info "Installing system packages with pacman..."
+        sudo sh -c "pacman -Sy --noconfirm $PKGS"
+      elif command -v yum >/dev/null; then
+        info "Installing system packages with yum..."
+        sudo sh -c "yum install -y $PKGS"
+      fi
+      ;;
+    Darwin)
+      info "Installing system packages with brew..."
+      sh -c "brew install $PKGS"
+      ;;
+  esac
 else
   info "All system packages are installed."
 fi
