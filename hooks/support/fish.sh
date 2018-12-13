@@ -10,14 +10,7 @@ if [ "$(getshell)" != "$fish" ]; then
   fi
 
   info "Changing login shell to fish..."
-  case $(uname) in
-    FreeBSD)
-      su -c "chsh -s '$fish' '$USER'"
-      ;;
-    *)
-      sudo chsh -s "$fish" "$USER"
-      ;;
-  esac
+  sudo chsh -s "$fish" "$USER"
 fi
 
 if [ ! -f "$XDG_CONFIG_HOME/fish/functions/fisher.fish" ]; then

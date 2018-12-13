@@ -3,7 +3,6 @@
 set -e
 
 . lib/env.sh
-. lib/install.sh
 . lib/logging.sh
 . lib/registry.sh
 . lib/utils.sh
@@ -73,14 +72,6 @@ for support in support/*.sh; do
   if ! echo "$SKIP_LANGUAGES" | grep -Fq "$(stem "$support")"; then
     # shellcheck source=/dev/null
     . "$support"
-  fi
-done
-
-section "Toolsets"
-for toolset in toolset/*.sh; do
-  if ! echo "$SKIP_TOOLSETS" | grep -Fq "$(stem "$toolset")"; then
-    # shellcheck source=/dev/null
-    . "$toolset"
   fi
 done
 

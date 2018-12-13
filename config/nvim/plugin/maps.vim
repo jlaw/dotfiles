@@ -63,10 +63,6 @@ nnoremap <leader>X :Sayonara!<cr>
 nnoremap <c-e> 5<c-e>
 nnoremap <c-y> 5<c-y>
 
-" Smooth scrolling.
-nnoremap <silent> <c-u> :call maps#smooth_scroll(1)<cr>
-nnoremap <silent> <c-d> :call maps#smooth_scroll(0)<cr>
-
 " Enter paste mode and leave once insert is finished.
 nnoremap <silent> yo :call maps#pasteonce()<cr>o
 nnoremap <silent> yO :call maps#pasteonce()<cr>O
