@@ -34,26 +34,26 @@ case $(uname) in
       fzf=https://github.com/junegunn/fzf-bin/releases/download/0.17.5/fzf-0.17.5-linux_amd64.tgz
       curl -sL ${fzf} | tar xz -C ${HOME}/.local/bin/ fzf
     
-      pack=https://github.com/maralla/pack/releases/download/v0.2.3/pack-v0.2.3-x86_64-unknown-linux-gnu.tar.gz
-      curl -sL ${pack} | tar xz -C ${HOME}/.local/bin/ pack
+      #pack=https://github.com/maralla/pack/releases/download/v0.2.3/pack-v0.2.3-x86_64-unknown-linux-gnu.tar.gz
+      #curl -sL ${pack} | tar xz -C ${HOME}/.local/bin/ pack
       
-      exa=https://github.com/ogham/exa/releases/download/v0.8.0/exa-linux-x86_64-0.8.0.zip
-      curl -sL ${exa} > exa.zip && unzip exa.zip -d ${HOME}/.local/bin/ && mv ${HOME}/.local/bin/exa{-linux-x86_64,} && rm -f exa.zip
+      #exa=https://github.com/ogham/exa/releases/download/v0.8.0/exa-linux-x86_64-0.8.0.zip
+      #curl -sL ${exa} > exa.zip && unzip exa.zip -d ${HOME}/.local/bin/ && mv ${HOME}/.local/bin/exa{-linux-x86_64,} && rm -f exa.zip
       
       direnv=https://github.com/direnv/direnv/releases/download/v2.18.2/direnv.linux-amd64
       curl -sL ${direnv} > ${HOME}/.local/bin/direnv && chmod a+x ${HOME}/.local/bin/direnv
       
-      bat=https://github.com/sharkdp/bat/releases/download/v0.9.0/bat-v0.9.0-x86_64-unknown-linux-gnu.tar.gz
-      curl -sL ${bat} | tar xz -C ${HOME}/.local/bin/ --strip-components=1 bat-v0.9.0-x86_64-unknown-linux-gnu/bat
+      bat=https://github.com/sharkdp/bat/releases/download/v0.9.0/bat-v0.9.0-x86_64-unknown-linux-musl.tar.gz
+      curl -sL ${bat} | tar xz -C ${HOME}/.local/bin/ --strip-components=1 bat-v0.9.0-x86_64-unknown-linux-musl/bat
       
       icdiff=https://github.com/jeffkaufman/icdiff/archive/release-1.9.4.tar.gz
       curl -sL ${icdiff} | tar xz -C ${HOME}/.local/bin/ --strip-components=1 icdiff-release-1.9.4/{git-icdiff,icdiff}
     
-      hexyl=https://github.com/sharkdp/hexyl/releases/download/v0.2.0/hexyl-v0.2.0-x86_64-unknown-linux-gnu.tar.gz
-      curl -sL ${hexyl} | tar xz -C ${HOME}/.local/bin/ --strip-components=1 hexyl-v0.2.0-x86_64-unknown-linux-gnu/hexyl
+      hexyl=https://github.com/sharkdp/hexyl/releases/download/v0.2.0/hexyl-v0.2.0-x86_64-unknown-linux-musl.tar.gz
+      curl -sL ${hexyl} | tar xz -C ${HOME}/.local/bin/ --strip-components=1 hexyl-v0.2.0-x86_64-unknown-linux-musl/hexyl
       
-      fd=https://github.com/sharkdp/fd/releases/download/v7.2.0/fd-v7.2.0-x86_64-unknown-linux-gnu.tar.gz
-      curl -sL ${fd} | tar xz -C ${HOME}/.local/bin/ --strip-components=1 fd-v7.2.0-x86_64-unknown-linux-gnu/fd
+      fd=https://github.com/sharkdp/fd/releases/download/v7.2.0/fd-v7.2.0-x86_64-unknown-linux-musl.tar.gz
+      curl -sL ${fd} | tar xz -C ${HOME}/.local/bin/ --strip-components=1 fd-v7.2.0-x86_64-unknown-linux-musl/fd
     else
       error "Unsupported package manager."
     fi
