@@ -29,14 +29,16 @@ case $(uname) in
 
       INSTALLED=$(rpm -qa --queryformat '%{name}\n')
       
-      git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-      ~/.fzf/install
+      sudo yum-config-manager --add-repo=https://copr.fedorainfracloud.org/coprs/carlwgeorge/ripgrep/repo/epel-7/carlwgeorge-ripgrep-epel-7.repo
+      
+      fzf=https://github.com/junegunn/fzf-bin/releases/download/0.17.5/fzf-0.17.5-linux_amd64.tgz
+      curl -sL ${fzf} | tar x -C ${HOME}/.local/bin/ fzf
     
       pack=https://github.com/maralla/pack/releases/download/v0.2.3/pack-v0.2.3-x86_64-unknown-linux-gnu.tar.gz
       curl -sL ${pack} | tar x -C ${HOME}/.local/bin/ pack
       
       exa=https://github.com/ogham/exa/releases/download/v0.8.0/exa-linux-x86_64-0.8.0.zip
-      curl -sL ${exa} | tar x -C ${HOME}/.local/bin/ exa-linux-x86_64 && mv ${HOME}/.local/bin/exa{-linux-x86_64,}
+      curl -sL ${exa} > exa.zip && unzip -d ${HOME}/.local/bin/ && mv ${HOME}/.local/bin/exa{-linux-x86_64,} && rm -f exa.zip
       
       direnv=https://github.com/direnv/direnv/releases/download/v2.18.2/direnv.linux-amd64
       curl -sL ${direnv} > ${HOME}/.local/bin/direnv
